@@ -10,7 +10,7 @@ int selection()
     response = getchar();
     if (response == 'y') 
     {
-        cout << "I made a change (Outcome 1)" << endl;
+        cout << "I made another change (Outcome 1)" << endl;
         return 1;
     }
     else if (response == 'n') 
