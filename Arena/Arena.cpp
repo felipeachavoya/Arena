@@ -4,13 +4,49 @@
 #include <iostream>
 using namespace std;
 
+int combatSequence() 
+{
+    int playerHealth = 100;
+    int enemyHealth = 60;
+
+    cout << "A warrior approaches..." << endl;
+    while (enemyHealth > 0)
+    {
+
+        int input;
+        cout << "Warrior Health: " << enemyHealth << endl;
+        cout << "   1.) Punch\n";
+        cout << "   2.) Kick\n";
+        cin >> input;
+
+        switch (input)
+        {
+        case 1:
+            enemyHealth = enemyHealth - 10;
+            cout << "You punch the warrior for 10 health\n";
+                break;
+        case 2:
+            enemyHealth = enemyHealth - 20;
+            cout << "You punch the warrior for 20 health\n";
+            break;
+        default:
+            cout << "Invalid Input!\n";
+            break;
+        }
+    }
+    cout << "You defeated the warrior!\n";
+
+    return 0;
+}
+
 int selection()
 {
     char response;
     response = getchar();
     if (response == 'y') 
     {
-        cout << "I made another change (Outcome 1)" << endl;
+        cout << "Begin Game (Outcome 1)" << endl;
+        combatSequence();
         return 1;
     }
     else if (response == 'n') 
