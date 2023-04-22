@@ -2,6 +2,7 @@
 //
 
 #include <iostream>
+#include <Windows.h>
 using namespace std;
 
 int combatSequence() 
@@ -14,6 +15,7 @@ int combatSequence()
     {
 
         int input;
+        Sleep(500);
         cout << "Warrior Health: " << enemyHealth << endl;
         cout << "   1.) Punch\n";
         cout << "   2.) Kick\n";
@@ -24,10 +26,12 @@ int combatSequence()
         case 1:
             enemyHealth = enemyHealth - 10;
             cout << "You punch the warrior for 10 health\n";
+            Sleep(500);
                 break;
         case 2:
             enemyHealth = enemyHealth - 20;
             cout << "You punch the warrior for 20 health\n";
+            Sleep(500);
             break;
         default:
             cout << "Invalid Input!\n";
@@ -41,23 +45,25 @@ int combatSequence()
 
 int selection()
 {
-    char response;
-    response = getchar();
-    if (response == 'y') 
+    cout << "1.) Start Game\n";
+    cout << "2.) Exit Game\n";
+    int input;
+    cin >> input;
+    Sleep(100);
+    switch (input)
     {
-        cout << "Begin Game (Outcome 1)" << endl;
+    case 1:
         combatSequence();
         return 1;
-    }
-    else if (response == 'n') 
-    {
-        cout << "Exiting game... (Outcome 2)" << endl;
+        break;
+    case 2:
+        cout << "Exitting Game...\n";
         return 2;
-    }
-    else
-    {
-        cout << "Invalid input! (Outcome 3)" << endl;
-        return 3;
+        break;
+    default:
+        cout << "Invalid Input... Try again...\n";
+        return 1;
+        break;
     }
 }
 
@@ -65,7 +71,6 @@ int mainMenu()
 {
     int gameMode = 1;
     cout << "Arena -- A Virtual Combat Game\n";
-    cout << "Begin Game? (y/n): ";
     while (gameMode != 2)
     {
         gameMode = selection();
