@@ -5,40 +5,76 @@
 #include <Windows.h>
 using namespace std;
 
+int processEnemyTurn(int playerHealth)
+{
+    int selection = rand() % 2 + 1;
+    switch (selection)
+    {
+    case 1:
+        cout << "Warrior throws a punch for 10 damage!\n";
+        return playerHealth - 10;
+        break;
+    case 2:
+        cout << "Warrior throws a kick for 20 damage!\n";
+        return playerHealth - 20;
+        break;
+    }
+    Sleep(500);
+    return 0;
+}
+
+int processPlayerTurn(int input, int enemyHealth)
+{
+    switch (input)
+    {
+    case 1:
+        cout << "You punch the warrior for 10 health\n";
+        return enemyHealth - 10;
+        break;
+    case 2:
+        cout << "You kick the warrior for 20 health\n";
+        return enemyHealth - 20;
+        break;
+    default:
+        return enemyHealth;
+        cout << "Turn Skipped...\n";
+        break;
+    }
+    Sleep(500);
+}
+
 int combatSequence() 
 {
+    int turnCount = 1;
     int playerHealth = 100;
     int enemyHealth = 60;
 
     cout << "A warrior approaches..." << endl;
-    while (enemyHealth > 0)
+    while (enemyHealth > 0 && playerHealth > 0)
     {
-
         int input;
         Sleep(500);
+        cout << "Turn " << turnCount << ":\n";
+        cout << "Player Health: " << playerHealth << endl;
         cout << "Warrior Health: " << enemyHealth << endl;
         cout << "   1.) Punch\n";
         cout << "   2.) Kick\n";
         cin >> input;
 
-        switch (input)
-        {
-        case 1:
-            enemyHealth = enemyHealth - 10;
-            cout << "You punch the warrior for 10 health\n";
-            Sleep(500);
-                break;
-        case 2:
-            enemyHealth = enemyHealth - 20;
-            cout << "You punch the warrior for 20 health\n";
-            Sleep(500);
-            break;
-        default:
-            cout << "Invalid Input!\n";
-            break;
-        }
+        enemyHealth = processPlayerTurn(input, enemyHealth);
+        playerHealth = processEnemyTurn(playerHealth);
+
+        turnCount += 1;
     }
-    cout << "You defeated the warrior!\n";
+    if (enemyHealth <= 0)
+    {
+        cout << "You are Victorious!\n";
+        Sleep(400);
+    }
+    else if (playerHealth <= 0)
+    {
+        cout << "You were defeated...\n";
+    }
 
     return 0;
 }
