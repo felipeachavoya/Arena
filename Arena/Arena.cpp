@@ -4,7 +4,42 @@
 #include <iostream>
 #include <Windows.h>
 using namespace std;
+const int pause = 800;
 
+/*
+    -- List of things to do --
+
+    1.) Introduce misses.
+
+    2.) Introduce some variability into damage received.
+
+    3.) Introduce a defense move. Lowers damage received by some factor
+
+    3.) Introduce a dodge and heal move which take a turn. Dodge decreases odds of an attack landing. Heal restores
+        a random amount of health.
+
+    4.) Improve enemy logic, create some logic which prioritizes specific choices based off of health. For example, if the enemyHealth
+        integer is less than %30 of its' max health, then the processEnemyTurn function is more likely to choose heal rather than kick
+        or dodge.
+
+    -- Spitballs (stuff I might do later, I don't know) --
+
+    1.) Introduce critical hits, fails, and heals. Critical hits are pretty obvious, if either entity lands a critical blow, the amount of
+        damage received is increased by a signficant amount. A critical fail occurs as a substitute to a miss. This can result in the attacking
+        entity either losing a turn (meaning the other entity goes twice) or receiving damage as a result. Critical heals can are like critical
+        hits, but instead the target entity (in this case, the entity who's turn it is), recieves a significant health restoration.
+
+    2.) Add a selection menu which changes the enemy type on each combat encounter. The player can select from Warrior, Goblin, Orc, and so on...
+        This change affects a variety of things, more importantly enemy behaviour. For example, a Warrior would be the standard enemy behaviour.
+        A Goblin is weaker and has worse attack and health stats than a warrior, so it is more likely to dodge. An Orc would be more aggressive,
+        so rather than dodging or healing, it is more likely to try and land hits, even if its health is low.
+*/
+
+/*
+    This function decides what the enemy will attack with using the rand function.
+    It essentially is a coin flip and then returns what the damage is to the combatSequence function
+    to update the player health.
+*/
 int processEnemyTurn(int playerHealth)
 {
     int selection = rand() % 2 + 1;
@@ -19,12 +54,16 @@ int processEnemyTurn(int playerHealth)
         return playerHealth - 20;
         break;
     }
-    Sleep(500);
     return 0;
 }
 
-int processPlayerTurn(int input, int enemyHealth)
+int processPlayerTurn(int enemyHealth)
 {
+    int input;
+    cout << "   1.) Punch\n";
+    cout << "   2.) Kick\n";
+    cin >> input;
+
     switch (input)
     {
     case 1:
@@ -40,7 +79,6 @@ int processPlayerTurn(int input, int enemyHealth)
         cout << "Turn Skipped...\n";
         break;
     }
-    Sleep(500);
 }
 
 int combatSequence() 
@@ -50,30 +88,32 @@ int combatSequence()
     int enemyHealth = 60;
 
     cout << "A warrior approaches..." << endl;
+    Sleep(pause);
     while (enemyHealth > 0 && playerHealth > 0)
     {
+        string combatOutcome;
         int input;
-        Sleep(500);
         cout << "Turn " << turnCount << ":\n";
         cout << "Player Health: " << playerHealth << endl;
         cout << "Warrior Health: " << enemyHealth << endl;
-        cout << "   1.) Punch\n";
-        cout << "   2.) Kick\n";
-        cin >> input;
 
-        enemyHealth = processPlayerTurn(input, enemyHealth);
+        // Before you start the list, these needs to be fixed.
+        enemyHealth = processPlayerTurn(enemyHealth);
+        Sleep(pause);
         playerHealth = processEnemyTurn(playerHealth);
+        Sleep(pause);
 
         turnCount += 1;
     }
     if (enemyHealth <= 0)
     {
         cout << "You are Victorious!\n";
-        Sleep(400);
+        Sleep(pause);
     }
     else if (playerHealth <= 0)
     {
         cout << "You were defeated...\n";
+        Sleep(pause);
     }
 
     return 0;
@@ -85,7 +125,6 @@ int selection()
     cout << "2.) Exit Game\n";
     int input;
     cin >> input;
-    Sleep(100);
     switch (input)
     {
     case 1:
