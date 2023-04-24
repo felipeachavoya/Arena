@@ -13,8 +13,6 @@ const int pause = 800;
 
     2.) Introduce some variability into damage received.
 
-    3.) Introduce a defense move. Lowers damage received by some factor
-
     3.) Introduce a dodge and heal move which take a turn. Dodge decreases odds of an attack landing. Heal restores
         a random amount of health.
 
@@ -33,6 +31,8 @@ const int pause = 800;
         This change affects a variety of things, more importantly enemy behaviour. For example, a Warrior would be the standard enemy behaviour.
         A Goblin is weaker and has worse attack and health stats than a warrior, so it is more likely to dodge. An Orc would be more aggressive,
         so rather than dodging or healing, it is more likely to try and land hits, even if its health is low.
+
+    3.) Introduce a defense stat. Lowers damage received by some factor
 */
 
 /*
