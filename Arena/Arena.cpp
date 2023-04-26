@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <Windows.h>
+#include <string>
+#include "Character.h"
 using namespace std;
 const int pause = 800;
 
@@ -40,82 +42,115 @@ const int pause = 800;
     It essentially is a coin flip and then returns what the damage is to the combatSequence function
     to update the player health.
 */
-int processEnemyTurn(int playerHealth)
+
+/*
+int processEnemyTurn()
 {
     int selection = rand() % 2 + 1;
     switch (selection)
     {
     case 1:
         cout << "Warrior throws a punch for 10 damage!\n";
-        return playerHealth - 10;
+        return 10;
         break;
     case 2:
         cout << "Warrior throws a kick for 20 damage!\n";
-        return playerHealth - 20;
+        return 20;
         break;
     }
     return 0;
 }
+*/
 
-int processPlayerTurn(int enemyHealth)
+string generatePlayer()
 {
-    int input;
-    cout << "   1.) Punch\n";
-    cout << "   2.) Kick\n";
-    cin >> input;
+    string playername;
+    cout << "Choose your name: ";
+    cin >> playername;
 
-    switch (input)
+    return playername;
+}
+
+int processPlayerTurn(string name, int IP)
+{
+    int selection;
+
+    if (IP == 1) {
+        int input;
+        cout << "1.) Punch\n";
+        cout << "2.) Kick\n";
+        cin >> input;
+        selection = input;
+    }
+    else if (IP == 0) {
+        int input = rand() % 2 + 1;
+        selection = input;
+    }
+
+    switch (selection)
     {
     case 1:
-        cout << "You punch the warrior for 10 health\n";
-        return enemyHealth - 10;
+        cout << name << " throws a punch for 10 damage!\n";
+        return 10;
         break;
     case 2:
-        cout << "You kick the warrior for 20 health\n";
-        return enemyHealth - 20;
+        cout << name << " lands a kick for 20 damage!\n";
+        return 20;
         break;
     default:
-        return enemyHealth;
-        cout << "Turn Skipped...\n";
+        cout << "Turn skipped...\n";
+        return 0;
         break;
     }
 }
 
 int combatSequence() 
 {
-    int turnCount = 1;
-    int playerHealth = 100;
-    int enemyHealth = 60;
 
-    cout << "A warrior approaches..." << endl;
+    int turnCount = 1;
+    string playerName = generatePlayer();
+
+    // (name, maxHealth, charHealth, isPlayer?)
+    Character playerCharacter(playerName, 100, 100, 1);
+    Character enemyCharacter("Warrior", 60, 60, 0);
+
+    cout << "A " << enemyCharacter.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
-    while (enemyHealth > 0 && playerHealth > 0)
+
+    while (enemyCharacter.getCharacterHealth() > 0 && playerCharacter.getCharacterHealth() > 0)
     {
         string combatOutcome;
-        int input;
         cout << "Turn " << turnCount << ":\n";
-        cout << "Player Health: " << playerHealth << endl;
-        cout << "Warrior Health: " << enemyHealth << endl;
-
-        // Before you start the list, these needs to be fixed.
-        enemyHealth = processPlayerTurn(enemyHealth);
         Sleep(pause);
-        playerHealth = processEnemyTurn(playerHealth);
+        cout << playerCharacter.getCharacterName() << "'s Health: " << playerCharacter.getCharacterHealth() << endl;
+        cout << enemyCharacter.getCharacterName() <<"'s Health: " << enemyCharacter.getCharacterHealth() << endl;
+
+        /*
+        Below is how combatSequence process attacks and updates the health of each player. It is messy, and it will be worth it later to clean this
+        up with a new class maybe called "Actions".
+        */
+        
+        int damage = processPlayerTurn(playerCharacter.getCharacterName(), 1);
+        enemyCharacter.setCharacterHealth(enemyCharacter.getCharacterHealth() - damage);
+        if (enemyCharacter.getCharacterHealth() <= 0)
+        {
+            Sleep(pause);
+            cout << "You are Victorious!" << endl;
+            break;
+        }
+        Sleep(pause);
+
+        damage = processPlayerTurn(enemyCharacter.getCharacterName(), 0);
+        playerCharacter.setCharacterHealth(playerCharacter.getCharacterHealth() - damage);
+        if (playerCharacter.getCharacterHealth() <= 0)
+        {
+            cout << playerCharacter.getCharacterName() << " was defeated!\n";
+            break;
+        }
         Sleep(pause);
 
         turnCount += 1;
     }
-    if (enemyHealth <= 0)
-    {
-        cout << "You are Victorious!\n";
-        Sleep(pause);
-    }
-    else if (playerHealth <= 0)
-    {
-        cout << "You were defeated...\n";
-        Sleep(pause);
-    }
-
     return 0;
 }
 

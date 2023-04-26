@@ -1,5 +1,6 @@
 #pragma once
 #include <iostream>
+#include <string>
 using namespace std;
 
 
@@ -15,18 +16,7 @@ protected:
 	string characterName;
 	int maxHealth; // This stat will be more relevant later when healing is introduced.
 	int characterHealth;
-};
-
-
-/*
- For now, the playerCharacter class will be used to iron out the combatSequence function, but eventually we will want to create a
- non-Playable character class, or NPC. These NPC's will be for now aggressive towards the character, but maybe in the future we could
- alter this behavior to be passive and/or interactable with the PC.
-*/
-
-// Derived Character class
-class playerCharacter : public Character
-{
+	int isPlayer;
 public:
 	void setCharacterName(string SCN)
 	{
@@ -48,14 +38,37 @@ public:
 	{
 		characterHealth = SCH;
 	}
-	int getCharacterHealth() 
+	int getCharacterHealth()
 	{
 		return characterHealth;
 	}
-	playerCharacter(string SCN, int SMH, int SCH)
+	void setIsPlayer(int IP)
+	{
+		isPlayer = IP;
+	}
+	int getIsPlayer()
+	{
+		return isPlayer;
+	}
+
+	Character(string SCN, int SMH, int SCH, int IP)
 	{
 		setCharacterName(SCN);
 		setMaxHealth(SMH);
 		setCharacterHealth(SCH);
 	}
+};
+
+
+/*
+ For now, the playerCharacter class will be used to iron out the combatSequence function, but eventually we will want to create a
+ non-Playable character class, or NPC. These NPC's will be for now aggressive towards the character, but maybe in the future we could
+ alter this behavior to be passive and/or interactable with the PC.
+*/
+
+// Derived Character class
+class playerCharacter : public Character
+{
+public:
+
 };
