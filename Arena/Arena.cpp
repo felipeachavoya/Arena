@@ -13,7 +13,7 @@ const int pause = 800;
 
     1.) Introduce misses.
 
-    2.) Introduce some variability into damage received.
+    2.) (COMPLETED) Introduce some variability into damage received.
 
     3.) Introduce a dodge and heal move which take a turn. Dodge decreases odds of an attack landing. Heal restores
         a random amount of health.
@@ -37,30 +37,11 @@ const int pause = 800;
     3.) Introduce a defense stat. Lowers damage received by some factor
 */
 
-/*
-    This function decides what the enemy will attack with using the rand function.
-    It essentially is a coin flip and then returns what the damage is to the combatSequence function
-    to update the player health.
-*/
-
-/*
-int processEnemyTurn()
+int diceRoll()
 {
-    int selection = rand() % 2 + 1;
-    switch (selection)
-    {
-    case 1:
-        cout << "Warrior throws a punch for 10 damage!\n";
-        return 10;
-        break;
-    case 2:
-        cout << "Warrior throws a kick for 20 damage!\n";
-        return 20;
-        break;
-    }
-    return 0;
+    int roll = rand() % 32 + 1;
+    return roll;
 }
-*/
 
 string generatePlayer()
 {
@@ -75,28 +56,39 @@ int processPlayerTurn(string name, int IP)
 {
     int selection;
 
+    // If the Character is the player
     if (IP == 1) {
         int input;
         cout << "1.) Punch\n";
         cout << "2.) Kick\n";
+        cout << "3.) Heal\n";
         cin >> input;
         selection = input;
     }
+
+    // If the character is an AI
     else if (IP == 0) {
-        int input = rand() % 2 + 1;
+        int input = rand() % 3 + 1;
         selection = input;
     }
 
+    int damageCalc;
     switch (selection)
     {
     case 1:
-        cout << name << " throws a punch for 10 damage!\n";
-        return 10;
+        damageCalc = 0.8 * ((pow(diceRoll(), 2) / 64) + 5);
+        cout << name << " throws a punch for " << damageCalc << " damage!\n";
+        return -damageCalc;
         break;
     case 2:
-        cout << name << " lands a kick for 20 damage!\n";
-        return 20;
+        damageCalc = 1.2 * ((pow(diceRoll(), 2) / 64) + 10);
+        cout << name << " lands a kick for " << damageCalc << " damage!\n";
+        return -damageCalc;
         break;
+    case 3:
+        damageCalc = 0.8 * (pow(diceRoll(), 2) / 64);
+        cout << name << " healed for " << damageCalc << " HP!\n";
+        return damageCalc;
     default:
         cout << "Turn skipped...\n";
         return 0;
@@ -111,28 +103,41 @@ int combatSequence()
     string playerName = generatePlayer();
 
     // (name, maxHealth, charHealth, isPlayer?)
-    Character playerCharacter(playerName, 100, 100, 1);
-    Character enemyCharacter("Warrior", 60, 60, 0);
+    Character playerChar(playerName, 100, 100, 1);
+    Character opChar("Warrior", 60, 60, 0);
 
-    cout << "A " << enemyCharacter.getCharacterName() << " approaches..." << endl;
+    cout << "A " << opChar.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
 
-    while (enemyCharacter.getCharacterHealth() > 0 && playerCharacter.getCharacterHealth() > 0)
+    while (opChar.getCharacterHealth() > 0 && playerChar.getCharacterHealth() > 0)
     {
+        if (playerChar.getCharacterHealth() > playerChar.getMaxHealth())
+        {
+            // Prevents overheal
+            playerChar.setCharacterHealth(playerChar.getMaxHealth());
+        }
+        if (opChar.getCharacterHealth() > opChar.getMaxHealth())
+        {
+            // Prevents overheal
+            opChar.setCharacterHealth(opChar.getMaxHealth());
+        }
+
         string combatOutcome;
         cout << "Turn " << turnCount << ":\n";
         Sleep(pause);
-        cout << playerCharacter.getCharacterName() << "'s Health: " << playerCharacter.getCharacterHealth() << endl;
-        cout << enemyCharacter.getCharacterName() <<"'s Health: " << enemyCharacter.getCharacterHealth() << endl;
+        cout << playerChar.getCharacterName() << "'s Health: " << playerChar.getCharacterHealth() << endl;
+        cout << opChar.getCharacterName() <<"'s Health: " << opChar.getCharacterHealth() << endl;
 
         /*
         Below is how combatSequence process attacks and updates the health of each player. It is messy, and it will be worth it later to clean this
         up with a new class maybe called "Actions".
         */
         
-        int damage = processPlayerTurn(playerCharacter.getCharacterName(), 1);
-        enemyCharacter.setCharacterHealth(enemyCharacter.getCharacterHealth() - damage);
-        if (enemyCharacter.getCharacterHealth() <= 0)
+        int points = 0;
+
+        points = processPlayerTurn(playerChar.getCharacterName(), 1);
+        opChar.setCharacterHealth(opChar.getCharacterHealth() + points);
+        if (opChar.getCharacterHealth() <= 0)
         {
             Sleep(pause);
             cout << "You are Victorious!" << endl;
@@ -140,11 +145,13 @@ int combatSequence()
         }
         Sleep(pause);
 
-        damage = processPlayerTurn(enemyCharacter.getCharacterName(), 0);
-        playerCharacter.setCharacterHealth(playerCharacter.getCharacterHealth() - damage);
-        if (playerCharacter.getCharacterHealth() <= 0)
+        points = 0;
+
+        points = processPlayerTurn(opChar.getCharacterName(), 0);
+        playerChar.setCharacterHealth(playerChar.getCharacterHealth() + points);
+        if (playerChar.getCharacterHealth() <= 0)
         {
-            cout << playerCharacter.getCharacterName() << " was defeated!\n";
+            cout << playerChar.getCharacterName() << " was defeated!\n";
             break;
         }
         Sleep(pause);
