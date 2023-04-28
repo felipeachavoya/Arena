@@ -68,7 +68,7 @@ int processPlayerTurn(string name, int IP)
 
     // If the character is an AI
     else if (IP == 0) {
-        int input = rand() % 3 + 1;
+        int input = rand() % 2 + 1;
         selection = input;
     }
 
@@ -76,17 +76,17 @@ int processPlayerTurn(string name, int IP)
     switch (selection)
     {
     case 1:
-        damageCalc = 0.8 * ((pow(diceRoll(), 2) / 64) + 5);
+        damageCalc = ((pow(diceRoll(), 2)/64) + 2);
         cout << name << " throws a punch for " << damageCalc << " damage!\n";
         return -damageCalc;
         break;
     case 2:
-        damageCalc = 1.2 * ((pow(diceRoll(), 2) / 64) + 10);
+        damageCalc = ((pow(diceRoll(), 2)/48) + 2);
         cout << name << " lands a kick for " << damageCalc << " damage!\n";
         return -damageCalc;
         break;
     case 3:
-        damageCalc = 0.8 * (pow(diceRoll(), 2) / 64);
+        damageCalc = ((pow(diceRoll(), 2)/70) + 2);
         cout << name << " healed for " << damageCalc << " HP!\n";
         return damageCalc;
     default:
