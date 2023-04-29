@@ -11,7 +11,7 @@ const int pause = 800;
 /*
     -- List of things to do --
 
-    1.) Introduce misses.
+    1.) (COMPLETED) Introduce misses.
 
     2.) (COMPLETED) Introduce some variability into damage received.
 
@@ -52,7 +52,22 @@ string generatePlayer()
     return playername;
 }
 
-int processPlayerTurn(string name, int IP)
+// 0 = hit, 1 = miss. Set chanceMod to 1 for no modifier
+int missResult(int chanceMod)
+{
+    int Odds = 16 * chanceMod;
+    int missRoll = diceRoll();
+    if (missRoll <= Odds)
+    {
+        return 1;
+    }
+    else if (missRoll > Odds)
+    {
+        return 0;
+    }
+}
+
+int processTurn(string name, int IP)
 {
     int selection;
 
@@ -72,17 +87,39 @@ int processPlayerTurn(string name, int IP)
         selection = input;
     }
 
+    string missMsg = " and misses!\n";
     int damageCalc;
     switch (selection)
     {
     case 1:
-        damageCalc = ((pow(diceRoll(), 2)/64) + 2);
-        cout << name << " throws a punch for " << damageCalc << " damage!\n";
+        // damageCalc = ((pow(diceRoll(), 2)/64) + 2);
+        cout << name << " throws a punch";
+        Sleep(pause);
+        if (missResult(.75) < 1)
+        {
+            damageCalc = ((pow(diceRoll(), 2) / 64) + 2);
+            cout << " and lands a hit for " << damageCalc << "!\n";
+        }
+        else
+        {
+            damageCalc = 0;
+            cout << missMsg << endl;
+        }
         return -damageCalc;
         break;
     case 2:
-        damageCalc = ((pow(diceRoll(), 2)/48) + 2);
-        cout << name << " lands a kick for " << damageCalc << " damage!\n";
+        cout << name << " initiates a kick";
+        Sleep(pause);
+        if (missResult(1.25) < 1)
+        {
+            damageCalc = ((pow(diceRoll(), 2) / 48) + 2);
+            cout << " and lands a hit for " << damageCalc << "!\n";
+        }
+        else
+        {
+            damageCalc = 0;
+            cout << missMsg << endl;
+        }
         return -damageCalc;
         break;
     case 3:
@@ -96,6 +133,18 @@ int processPlayerTurn(string name, int IP)
     }
 }
 
+int checkOverHeal(int maxHealth, int currentHealth)
+{
+    if (maxHealth >= currentHealth)
+    {
+        return currentHealth;
+    }
+    else if (maxHealth < currentHealth)
+    {
+        return maxHealth;
+    }
+}
+
 int combatSequence() 
 {
 
@@ -103,14 +152,15 @@ int combatSequence()
     string playerName = generatePlayer();
 
     // (name, maxHealth, charHealth, isPlayer?)
-    Character playerChar(playerName, 100, 100, 1);
+    Character playerChar(playerName, 60, 60, 1);
     Character opChar("Warrior", 60, 60, 0);
 
     cout << "A " << opChar.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
 
-    while (opChar.getCharacterHealth() > 0 && playerChar.getCharacterHealth() > 0)
+    while (opChar.getCharHP() > 0 && playerChar.getCharHP() > 0)
     {
+        /*
         if (playerChar.getCharacterHealth() > playerChar.getMaxHealth())
         {
             // Prevents overheal
@@ -121,12 +171,13 @@ int combatSequence()
             // Prevents overheal
             opChar.setCharacterHealth(opChar.getMaxHealth());
         }
+        */
 
         string combatOutcome;
         cout << "Turn " << turnCount << ":\n";
         Sleep(pause);
-        cout << playerChar.getCharacterName() << "'s Health: " << playerChar.getCharacterHealth() << endl;
-        cout << opChar.getCharacterName() <<"'s Health: " << opChar.getCharacterHealth() << endl;
+        cout << playerChar.getCharacterName() << "'s Health: " << playerChar.getCharHP() << endl;
+        cout << opChar.getCharacterName() <<"'s Health: " << opChar.getCharHP() << endl;
 
         /*
         Below is how combatSequence process attacks and updates the health of each player. It is messy, and it will be worth it later to clean this
@@ -135,25 +186,50 @@ int combatSequence()
         
         int points = 0;
 
-        points = processPlayerTurn(playerChar.getCharacterName(), 1);
-        opChar.setCharacterHealth(opChar.getCharacterHealth() + points);
-        if (opChar.getCharacterHealth() <= 0)
+        points = processTurn(playerChar.getCharacterName(), 1);
+        if (points <= 0)
         {
-            Sleep(pause);
-            cout << "You are Victorious!" << endl;
-            break;
+            opChar.setCharHP(opChar.getCharHP() + points);
+            if (opChar.getCharHP() <= 0)
+            {
+                Sleep(pause);
+                cout << "You are Victorious!" << endl;
+                break;
+            }
         }
+        else if (points > 0)
+        {
+            playerChar.setCharHP(playerChar.getCharHP() + points);
+            playerChar.setCharHP(checkOverHeal(playerChar.getMaxHP(), playerChar.getCharHP()));
+        }
+        
         Sleep(pause);
-
-        points = 0;
-
-        points = processPlayerTurn(opChar.getCharacterName(), 0);
-        playerChar.setCharacterHealth(playerChar.getCharacterHealth() + points);
-        if (playerChar.getCharacterHealth() <= 0)
+        points = processTurn(opChar.getCharacterName(), 0);
+        if (points <= 0)
+        {
+            playerChar.setCharHP(playerChar.getCharHP() + points);
+            if (playerChar.getCharHP() <= 0)
+            {
+                Sleep(pause);
+                cout << "You were defeated..." << endl;
+                break;
+            }
+        }
+        else if (points > 0)
+        {
+            opChar.setCharHP(opChar.getCharHP() + points);
+            opChar.setCharHP(checkOverHeal(opChar.getMaxHP(), opChar.getCharHP()));
+        }
+        /*
+        points = processTurn(opChar.getCharacterName(), 0);
+        playerChar.setCharHP(playerChar.getCharHP() + points);
+        if (playerChar.getCharHP() <= 0)
         {
             cout << playerChar.getCharacterName() << " was defeated!\n";
             break;
         }
+        */
+
         Sleep(pause);
 
         turnCount += 1;

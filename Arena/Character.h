@@ -30,15 +30,15 @@ public:
 	{
 		maxHealth = SMH;
 	}
-	int getMaxHealth()
+	int getMaxHP()
 	{
 		return maxHealth;
 	}
-	void setCharacterHealth(int SCH)
+	void setCharHP(int SCH)
 	{
 		characterHealth = SCH;
 	}
-	int getCharacterHealth()
+	int getCharHP()
 	{
 		return characterHealth;
 	}
@@ -55,7 +55,7 @@ public:
 	{
 		setCharacterName(SCN);
 		setMaxHealth(SMH);
-		setCharacterHealth(SCH);
+		setCharHP(SCH);
 	}
 };
 
