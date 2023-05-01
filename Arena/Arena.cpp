@@ -3,10 +3,19 @@
 
 #include <iostream>
 #include <Windows.h>
+#include <cstdlib>
+#include <ctime>
 #include <string>
 #include "Character.h"
+
 using namespace std;
 const int pause = 800;
+
+#define dice_roll (rand() % 32 + 1)
+#define coin_flip (rand() % 2 + 1)
+
+// 0 = hit, 1 = miss. Set chanceMod to 1 for no modifier
+#define miss_result (variable)
 
 /*
     -- List of things to do --
@@ -37,12 +46,6 @@ const int pause = 800;
     3.) Introduce a defense stat. Lowers damage received by some factor
 */
 
-int diceRoll()
-{
-    int roll = rand() % 32 + 1;
-    return roll;
-}
-
 string generatePlayer()
 {
     string playername;
@@ -50,21 +53,6 @@ string generatePlayer()
     cin >> playername;
 
     return playername;
-}
-
-// 0 = hit, 1 = miss. Set chanceMod to 1 for no modifier
-int missResult(int chanceMod)
-{
-    int Odds = 16 * chanceMod;
-    int missRoll = diceRoll();
-    if (missRoll <= Odds)
-    {
-        return 1;
-    }
-    else if (missRoll > Odds)
-    {
-        return 0;
-    }
 }
 
 int processTurn(string name, int IP)
@@ -83,7 +71,7 @@ int processTurn(string name, int IP)
 
     // If the character is an AI
     else if (IP == 0) {
-        int input = rand() % 2 + 1;
+        int input = coin_flip;
         selection = input;
     }
 
@@ -94,10 +82,11 @@ int processTurn(string name, int IP)
     case 1:
         // damageCalc = ((pow(diceRoll(), 2)/64) + 2);
         cout << name << " throws a punch";
+     
         Sleep(pause);
-        if (missResult(.75) < 1)
+        if (miss_result(.75) < 1)
         {
-            damageCalc = ((pow(diceRoll(), 2) / 64) + 2);
+            damageCalc = ((pow(dice_roll, 2) / 64) + 2);
             cout << " and lands a hit for " << damageCalc << "!\n";
         }
         else
@@ -110,9 +99,9 @@ int processTurn(string name, int IP)
     case 2:
         cout << name << " initiates a kick";
         Sleep(pause);
-        if (missResult(1.25) < 1)
+        if (miss_result(1.25) < 1)
         {
-            damageCalc = ((pow(diceRoll(), 2) / 48) + 2);
+            damageCalc = ((pow(dice_roll, 2) / 48) + 2);
             cout << " and lands a hit for " << damageCalc << "!\n";
         }
         else
@@ -123,7 +112,7 @@ int processTurn(string name, int IP)
         return -damageCalc;
         break;
     case 3:
-        damageCalc = ((pow(diceRoll(), 2)/70) + 2);
+        damageCalc = ((pow(dice_roll, 2)/70) + 2);
         cout << name << " healed for " << damageCalc << " HP!\n";
         return damageCalc;
     default:
@@ -145,6 +134,39 @@ int checkOverHeal(int maxHealth, int currentHealth)
     }
 }
 
+string toString(char* a, int sizeOf) 
+{
+    string s = "";
+    for (int index = 0; index < sizeOf; index++)
+    {
+        s = s + a[index];
+    }
+    return s;
+}
+
+void healthBar(int maxHealth, int currentHealth, string name)
+{
+    char HP = '#';
+    char empty = '.';
+    int pipIndex = (currentHealth / maxHealth) * 10;
+
+    //Initialize Health Bar
+    char healthBar[10];
+    for (int thisPip = 0; thisPip < 10; thisPip++)
+    {
+        healthBar[thisPip] = empty;
+
+        if (thisPip <= pipIndex)
+        {
+            healthBar[thisPip] = HP;
+        }
+    }
+
+    int barSize = sizeof(healthBar);
+
+    cout << name << "'s Health: [" << toString(healthBar, barSize) << "] " << pipIndex << endl;
+}
+
 int combatSequence() 
 {
 
@@ -152,13 +174,13 @@ int combatSequence()
     string playerName = generatePlayer();
 
     // (name, maxHealth, charHealth, isPlayer?)
-    Character playerChar(playerName, 60, 60, 1);
+    Character player(playerName, 60, 60, 1);
     Character opChar("Warrior", 60, 60, 0);
 
     cout << "A " << opChar.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
 
-    while (opChar.getCharHP() > 0 && playerChar.getCharHP() > 0)
+    while (opChar.getCharHP() > 0 && player.getCharHP() > 0)
     {
         /*
         if (playerChar.getCharacterHealth() > playerChar.getMaxHealth())
@@ -176,7 +198,8 @@ int combatSequence()
         string combatOutcome;
         cout << "Turn " << turnCount << ":\n";
         Sleep(pause);
-        cout << playerChar.getCharacterName() << "'s Health: " << playerChar.getCharHP() << endl;
+        healthBar(player.getMaxHP(), player.getCharHP(), player.getCharacterName());
+        cout << player.getCharacterName() << "'s Health: " << player.getCharHP() << endl;
         cout << opChar.getCharacterName() <<"'s Health: " << opChar.getCharHP() << endl;
 
         /*
@@ -186,7 +209,7 @@ int combatSequence()
         
         int points = 0;
 
-        points = processTurn(playerChar.getCharacterName(), 1);
+        points = processTurn(player.getCharacterName(), 1);
         if (points <= 0)
         {
             opChar.setCharHP(opChar.getCharHP() + points);
@@ -199,16 +222,16 @@ int combatSequence()
         }
         else if (points > 0)
         {
-            playerChar.setCharHP(playerChar.getCharHP() + points);
-            playerChar.setCharHP(checkOverHeal(playerChar.getMaxHP(), playerChar.getCharHP()));
+            player.setCharHP(player.getCharHP() + points);
+            player.setCharHP(checkOverHeal(player.getMaxHP(), player.getCharHP()));
         }
         
         Sleep(pause);
         points = processTurn(opChar.getCharacterName(), 0);
         if (points <= 0)
         {
-            playerChar.setCharHP(playerChar.getCharHP() + points);
-            if (playerChar.getCharHP() <= 0)
+            player.setCharHP(player.getCharHP() + points);
+            if (player.getCharHP() <= 0)
             {
                 Sleep(pause);
                 cout << "You were defeated..." << endl;
@@ -262,6 +285,7 @@ int selection()
 
 int mainMenu() 
 {
+    srand(time(0));
     int gameMode = 1;
     cout << "Arena -- A Virtual Combat Game\n";
     while (gameMode != 2)
