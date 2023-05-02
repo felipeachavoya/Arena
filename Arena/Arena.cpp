@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <string>
+#include <limits>
 #include "Character.h"
 
 using namespace std;
@@ -15,7 +16,7 @@ const int pause = 800;
 #define coin_flip (rand() % 2 + 1)
 
 // 0 = hit, 1 = miss. Set chanceMod to 1 for no modifier
-#define miss_result (variable)
+#define miss_result ((n) (dice_roll <= 16 * n))
 
 /*
     -- List of things to do --
@@ -55,6 +56,12 @@ string generatePlayer()
     return playername;
 }
 
+int missResult(int cMod)
+{
+    int missRoll = dice_roll;
+    return missRoll <= 16 * cMod;
+}
+
 int processTurn(string name, int IP)
 {
     int selection;
@@ -84,7 +91,7 @@ int processTurn(string name, int IP)
         cout << name << " throws a punch";
      
         Sleep(pause);
-        if (miss_result(.75) < 1)
+        if (missResult(.75) < 1)
         {
             damageCalc = ((pow(dice_roll, 2) / 64) + 2);
             cout << " and lands a hit for " << damageCalc << "!\n";
@@ -99,7 +106,7 @@ int processTurn(string name, int IP)
     case 2:
         cout << name << " initiates a kick";
         Sleep(pause);
-        if (miss_result(1.25) < 1)
+        if (missResult(1.25) < 1)
         {
             damageCalc = ((pow(dice_roll, 2) / 48) + 2);
             cout << " and lands a hit for " << damageCalc << "!\n";
@@ -146,9 +153,11 @@ string toString(char* a, int sizeOf)
 
 void healthBar(int maxHealth, int currentHealth, string name)
 {
+    float cHP = currentHealth;
+    float mHP = maxHealth;
     char HP = '#';
     char empty = '.';
-    int pipIndex = (currentHealth / maxHealth) * 10;
+    float pipIndex = (cHP / mHP) * 10;
 
     //Initialize Health Bar
     char healthBar[10];
@@ -156,7 +165,7 @@ void healthBar(int maxHealth, int currentHealth, string name)
     {
         healthBar[thisPip] = empty;
 
-        if (thisPip <= pipIndex)
+        if (thisPip < pipIndex)
         {
             healthBar[thisPip] = HP;
         }
@@ -164,7 +173,7 @@ void healthBar(int maxHealth, int currentHealth, string name)
 
     int barSize = sizeof(healthBar);
 
-    cout << name << "'s Health: [" << toString(healthBar, barSize) << "] " << pipIndex << endl;
+    cout << name << "'s Health: [" << toString(healthBar, barSize) << "]\n";
 }
 
 int combatSequence() 
@@ -175,7 +184,7 @@ int combatSequence()
 
     // (name, maxHealth, charHealth, isPlayer?)
     Character player(playerName, 60, 60, 1);
-    Character opChar("Warrior", 60, 60, 0);
+    Character opChar("Warrior", 1, 1, 0);
 
     cout << "A " << opChar.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
@@ -199,8 +208,7 @@ int combatSequence()
         cout << "Turn " << turnCount << ":\n";
         Sleep(pause);
         healthBar(player.getMaxHP(), player.getCharHP(), player.getCharacterName());
-        cout << player.getCharacterName() << "'s Health: " << player.getCharHP() << endl;
-        cout << opChar.getCharacterName() <<"'s Health: " << opChar.getCharHP() << endl;
+        healthBar(opChar.getMaxHP(), opChar.getCharHP(), opChar.getCharacterName());
 
         /*
         Below is how combatSequence process attacks and updates the health of each player. It is messy, and it will be worth it later to clean this
@@ -260,52 +268,62 @@ int combatSequence()
     return 0;
 }
 
-int selection()
+int selection(int optionLimit)
 {
-    cout << "1.) Start Game\n";
-    cout << "2.) Exit Game\n";
-    int input;
-    cin >> input;
-    switch (input)
+    int user_input;
+    while (true)
     {
-    case 1:
-        combatSequence();
-        return 1;
-        break;
-    case 2:
-        cout << "Exitting Game...\n";
-        return 2;
-        break;
-    default:
-        cout << "Invalid Input... Try again...\n";
-        return 1;
-        break;
+        
+        string input_str;
+        cin >> input_str;
+        try
+        {
+            user_input = stoi(input_str);
+        }
+        catch (const std::exception& e)
+        {
+            cout << "Invalid Input, Please enter an integer: ";
+            cin >> input_str;
+        }
+        if (user_input <= optionLimit)
+        { 
+            break;
+        }
+        cout << "Input not recognized, try again: ";
     }
+
+    return user_input;
 }
 
 int mainMenu() 
 {
-    srand(time(0));
-    int gameMode = 1;
-    cout << "Arena -- A Virtual Combat Game\n";
-    while (gameMode != 2)
+    while (true)
     {
-        gameMode = selection();
+        cout << "Arena -- A Virtual Combat Game\n";
+        cout << "1.) Start Game\n";
+        cout << "2.) Exit Game\n";
+
+        int gameMode = selection(2);
+        switch (gameMode)
+        {
+        case 1:
+            combatSequence();
+            break;
+        case 2:
+            cout << "Exitting Game...\n";
+            Sleep(pause);
+            break;
+        }
+
+        if (gameMode == 2)
+        {
+            break;
+        }
     }
     return 0;
 }
 int main()
 {
+    srand(time(0));
     mainMenu();
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
