@@ -47,6 +47,31 @@ const int pause = 800;
     3.) Introduce a defense stat. Lowers damage received by some factor
 */
 
+int selection(int optionLimit)
+{
+    int user_input;
+    while (true)
+    {
+        string input_str;
+        cin >> input_str;
+        try
+        {
+            user_input = stoi(input_str);
+        }
+        catch (const std::exception& e)
+        {
+            cout << "Invalid Input, Please enter an integer: ";
+            cin >> input_str;
+        }
+        if (user_input <= optionLimit)
+        {
+            break;
+        }
+        cout << "Input not recognized, try again: ";
+    }
+    return user_input;
+}
+
 string generatePlayer()
 {
     string playername;
@@ -64,27 +89,24 @@ int missResult(int cMod)
 
 int processTurn(string name, int IP)
 {
-    int selection;
+    int char_input;
 
     // If the Character is the player
     if (IP == 1) {
-        int input;
         cout << "1.) Punch\n";
         cout << "2.) Kick\n";
         cout << "3.) Heal\n";
-        cin >> input;
-        selection = input;
-    }
 
+        char_input = selection(3);
+    }
     // If the character is an AI
     else if (IP == 0) {
-        int input = coin_flip;
-        selection = input;
+        char_input = coin_flip;
     }
 
     string missMsg = " and misses!\n";
     int damageCalc;
-    switch (selection)
+    switch (char_input)
     {
     case 1:
         // damageCalc = ((pow(diceRoll(), 2)/64) + 2);
@@ -102,7 +124,6 @@ int processTurn(string name, int IP)
             cout << missMsg << endl;
         }
         return -damageCalc;
-        break;
     case 2:
         cout << name << " initiates a kick";
         Sleep(pause);
@@ -117,15 +138,10 @@ int processTurn(string name, int IP)
             cout << missMsg << endl;
         }
         return -damageCalc;
-        break;
     case 3:
         damageCalc = ((pow(dice_roll, 2)/70) + 2);
         cout << name << " healed for " << damageCalc << " HP!\n";
         return damageCalc;
-    default:
-        cout << "Turn skipped...\n";
-        return 0;
-        break;
     }
 }
 
@@ -266,33 +282,6 @@ int combatSequence()
         turnCount += 1;
     }
     return 0;
-}
-
-int selection(int optionLimit)
-{
-    int user_input;
-    while (true)
-    {
-        
-        string input_str;
-        cin >> input_str;
-        try
-        {
-            user_input = stoi(input_str);
-        }
-        catch (const std::exception& e)
-        {
-            cout << "Invalid Input, Please enter an integer: ";
-            cin >> input_str;
-        }
-        if (user_input <= optionLimit)
-        { 
-            break;
-        }
-        cout << "Input not recognized, try again: ";
-    }
-
-    return user_input;
 }
 
 int mainMenu() 
