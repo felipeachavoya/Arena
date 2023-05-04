@@ -67,8 +67,26 @@ public:
 */
 
 // Derived Character class
-class playerCharacter : public Character
+class EnemyCharacter : public Character
 {
 public:
+		EnemyCharacter() : Character("", 0, 0, 0) {}
+		EnemyCharacter(string name, int health, int maxHealth, int isPlayer) : Character(name, maxHealth, health, isPlayer) {}
+};
 
+class EnemyCharacterFactory 
+{
+public:
+	static EnemyCharacter createGoblin()
+	{
+		return EnemyCharacter("Goblin", 25, 25, 0);
+	}
+	static EnemyCharacter createWarrior()
+	{
+		return EnemyCharacter("Warrior", 30, 30, 0);
+	}
+	static EnemyCharacter createOrc()
+	{
+		return EnemyCharacter("Orc", 40, 40, 0);
+	}
 };

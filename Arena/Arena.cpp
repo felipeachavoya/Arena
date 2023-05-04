@@ -189,23 +189,45 @@ void healthBar(int maxHealth, int currentHealth, string name)
 
     int barSize = sizeof(healthBar);
 
-    cout << name << "'s Health: [" << toString(healthBar, barSize) << "]\n";
+    cout << name << "'s Health: [" << toString(healthBar, barSize) << "]" << currentHealth << endl;
 }
+
 
 int combatSequence() 
 {
+    EnemyCharacter enemy;
+    EnemyCharacterFactory factory;
+    // (name, maxHealth, charHealth, isPlayer?)
+    string playerName = generatePlayer();
+    Character player(playerName, 60, 60, 1);
+
+    cout << "Select an Opponent:" << endl;
+    cout << "1.) Goblin\n";
+    cout << "2.) Warrior\n";
+    cout << "3.) Orc\n";
+
+    int input = selection(3);
+   
+    switch (input)
+    {
+    case 1:
+        // Goblin
+        enemy = factory.createGoblin();
+        break;
+    case 2:
+        // Warrior
+        enemy = factory.createWarrior();
+        break;
+    case 3:
+        // Orc
+        enemy = factory.createOrc();
+    }
 
     int turnCount = 1;
-    string playerName = generatePlayer();
-
-    // (name, maxHealth, charHealth, isPlayer?)
-    Character player(playerName, 60, 60, 1);
-    Character opChar("Warrior", 1, 1, 0);
-
-    cout << "A " << opChar.getCharacterName() << " approaches..." << endl;
+    cout << "A " << enemy.getCharacterName() << " approaches..." << endl;
     Sleep(pause);
 
-    while (opChar.getCharHP() > 0 && player.getCharHP() > 0)
+    while (enemy.getCharHP() > 0 && player.getCharHP() > 0)
     {
         /*
         if (playerChar.getCharacterHealth() > playerChar.getMaxHealth())
@@ -224,7 +246,7 @@ int combatSequence()
         cout << "Turn " << turnCount << ":\n";
         Sleep(pause);
         healthBar(player.getMaxHP(), player.getCharHP(), player.getCharacterName());
-        healthBar(opChar.getMaxHP(), opChar.getCharHP(), opChar.getCharacterName());
+        healthBar(enemy.getMaxHP(), enemy.getCharHP(), enemy.getCharacterName());
 
         /*
         Below is how combatSequence process attacks and updates the health of each player. It is messy, and it will be worth it later to clean this
@@ -236,8 +258,8 @@ int combatSequence()
         points = processTurn(player.getCharacterName(), 1);
         if (points <= 0)
         {
-            opChar.setCharHP(opChar.getCharHP() + points);
-            if (opChar.getCharHP() <= 0)
+            enemy.setCharHP(enemy.getCharHP() + points);
+            if (enemy.getCharHP() <= 0)
             {
                 Sleep(pause);
                 cout << "You are Victorious!" << endl;
@@ -251,7 +273,7 @@ int combatSequence()
         }
         
         Sleep(pause);
-        points = processTurn(opChar.getCharacterName(), 0);
+        points = processTurn(enemy.getCharacterName(), 0);
         if (points <= 0)
         {
             player.setCharHP(player.getCharHP() + points);
@@ -264,8 +286,8 @@ int combatSequence()
         }
         else if (points > 0)
         {
-            opChar.setCharHP(opChar.getCharHP() + points);
-            opChar.setCharHP(checkOverHeal(opChar.getMaxHP(), opChar.getCharHP()));
+            enemy.setCharHP(enemy.getCharHP() + points);
+            enemy.setCharHP(checkOverHeal(enemy.getMaxHP(), enemy.getCharHP()));
         }
         /*
         points = processTurn(opChar.getCharacterName(), 0);
